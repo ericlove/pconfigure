@@ -274,7 +274,10 @@ language_cxx::find_files_for_header(const std::string& full_header_path) const
 
     std::vector<std::regex> remove_patterns = {
         std::regex("(.*)\\.h"),
-        std::regex("(.*)\\.h++")
+# if ( ((__GNUC__ == 4) && (__GNUC_MINOR__ > 8)) || (__GNUC__ > 4) || \
+        ((__clang_major__ >= 3) && (__clang_minor__ >= 5)) )
+        std::regex("(.*)\\.h\\+\\+")
+#endif
     };
 
     std::vector<std::string> add_patterns = {
