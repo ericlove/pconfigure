@@ -274,8 +274,7 @@ language_cxx::find_files_for_header(const std::string& full_header_path) const
 
     std::vector<std::regex> remove_patterns = {
         std::regex("(.*)\\.h"),
-# if ( ((__GNUC__ == 4) && (__GNUC_MINOR__ > 8)) || (__GNUC__ > 4) || \
-        ((__clang_major__ >= 3) && (__clang_minor__ >= 5)) )
+#if ((__GNUC__ != 4) || (__GNUC_MINOR__ > 8))
         std::regex("(.*)\\.h\\+\\+")
 #endif
     };
@@ -285,9 +284,13 @@ language_cxx::find_files_for_header(const std::string& full_header_path) const
         "$1.c"
     };
 
+    const auto regex_flags = std::regex_constants::format_no_copy;
     for (const auto& remove: remove_patterns) {
         for (const auto& add: add_patterns) {
-            std::string f = std::regex_replace(full_header_path, remove, add);
+            std::string f = std::regex_replace(full_header_path,
+                                               remove,
+                                               add,
+                                               regex_flags);
             if (access(f.c_str(), R_OK) == 0)
                 out.push_back(f);
         }
